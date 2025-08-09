@@ -26,11 +26,18 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         body: Any?,
         headers: HttpHeaders,
         statusCode: HttpStatusCode,
-        request: WebRequest,
-    ): ResponseEntity<Any>? {
-        val errorResponse =
-            ErrorResponse.of(ex.javaClass.simpleName, ex.message!!)
-        return super.handleExceptionInternal(ex, errorResponse, headers, statusCode, request)
+        request: WebRequest
+    ): ResponseEntity<Any> {
+        // 필요 시 타입별로 로그 레벨 분기 가능
+        log.error("Exception handled by handleExceptionInternal: {}", ex.message, ex)
+
+        val err = ErrorResponse.of(
+            errorClassName = ex.javaClass.simpleName,
+            message = ex.message ?: "Unknown error"
+        )
+        val wrapped = ApiResponse.fail(statusCode.value(), err)
+
+        return ResponseEntity.status(statusCode).headers(headers).body(wrapped)
     }
 
     /**
