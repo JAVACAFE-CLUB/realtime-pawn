@@ -29,7 +29,7 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         request: WebRequest,
     ): ResponseEntity<Any>? {
         val errorResponse =
-            ErrorResponse.Companion.of(ex.javaClass.simpleName, ex.message!!)
+            ErrorResponse.of(ex.javaClass.simpleName, ex.message!!)
         return super.handleExceptionInternal(ex, errorResponse, headers, statusCode, request)
     }
 
@@ -47,8 +47,8 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
 
         val errorMessage: String? = e.bindingResult.allErrors[0].defaultMessage
         val errorResponse =
-            ErrorResponse.Companion.of(e.javaClass.getSimpleName(), errorMessage!!)
-        val response = ApiResponse.Companion.fail(status.value(), errorResponse)
+            ErrorResponse.of(e.javaClass.getSimpleName(), errorMessage!!)
+        val response = ApiResponse.fail(status.value(), errorResponse)
         return ResponseEntity.status(status).body(response)
     }
 
@@ -63,8 +63,8 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
                 path to violation.message
             }
 
-        val errorResponse = ErrorResponse.Companion.of(e.javaClass.simpleName, bindingErrors.toString())
-        val response = ApiResponse.Companion.fail(HttpStatus.BAD_REQUEST.value(), errorResponse)
+        val errorResponse = ErrorResponse.of(e.javaClass.simpleName, bindingErrors.toString())
+        val response = ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), errorResponse)
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response)
     }
@@ -78,9 +78,9 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
 
         val errorCode: ErrorCode = ErrorCode.METHOD_ARGUMENT_TYPE_MISMATCH
         val errorResponse =
-            ErrorResponse.Companion.of(e.javaClass.getSimpleName(), errorCode.message)
+            ErrorResponse.of(e.javaClass.getSimpleName(), errorCode.message)
         val response =
-            ApiResponse.Companion.fail(errorCode.status.value(), errorResponse)
+            ApiResponse.fail(errorCode.status.value(), errorResponse)
 
         return ResponseEntity.status(errorCode.status).body(response)
     }
@@ -96,9 +96,9 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
 
         val errorCode: ErrorCode = ErrorCode.METHOD_NOT_ALLOWED
         val errorResponse =
-            ErrorResponse.Companion.of(e.javaClass.getSimpleName(), errorCode.message)
+            ErrorResponse.of(e.javaClass.getSimpleName(), errorCode.message)
         val response =
-            ApiResponse.Companion.fail(errorCode.status.value(), errorResponse)
+            ApiResponse.fail(errorCode.status.value(), errorResponse)
 
         return ResponseEntity.status(errorCode.status).body(response)
     }
@@ -110,9 +110,9 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
 
         val errorCode: ErrorCode = e.errorCode
         val errorResponse =
-            ErrorResponse.Companion.of(errorCode.name, errorCode.message)
+            ErrorResponse.of(errorCode.name, errorCode.message)
         val response =
-            ApiResponse.Companion.fail(errorCode.status.value(), errorResponse)
+            ApiResponse.fail(errorCode.status.value(), errorResponse)
 
         return ResponseEntity.status(errorCode.status).body(response)
     }
@@ -124,22 +124,9 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
 
         val internalServerError: ErrorCode = ErrorCode.INTERNAL_SERVER_ERROR
         val errorResponse =
-            ErrorResponse.Companion.of(e.javaClass.simpleName, internalServerError.message)
+            ErrorResponse.of(e.javaClass.simpleName, internalServerError.message)
         val response =
-            ApiResponse.Companion.fail(internalServerError.status.value(), errorResponse)
-
-        return ResponseEntity.status(internalServerError.status).body(response)
-    }
-
-    @ExceptionHandler(RuntimeException::class)
-    protected fun handleRuntimeException(e: RuntimeException): ResponseEntity<ApiResponse<ErrorResponse>> {
-        log.error("Internal Server Runtime Error : {}", e.message, e)
-
-        val internalServerError: ErrorCode = ErrorCode.INTERNAL_SERVER_ERROR
-        val errorResponse =
-            ErrorResponse.Companion.of(e.javaClass.simpleName, internalServerError.message)
-        val response =
-            ApiResponse.Companion.fail(internalServerError.status.value(), errorResponse)
+            ApiResponse.fail(internalServerError.status.value(), errorResponse)
 
         return ResponseEntity.status(internalServerError.status).body(response)
     }
