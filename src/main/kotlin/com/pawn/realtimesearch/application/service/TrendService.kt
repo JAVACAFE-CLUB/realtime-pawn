@@ -1,5 +1,8 @@
-package com.pawn.realtimesearch.application
+package com.pawn.realtimesearch.application.service
 
+import com.pawn.realtimesearch.application.dto.TrendDto
+import com.pawn.realtimesearch.application.mapper.toDto
+import com.pawn.realtimesearch.application.mapper.toEntity
 import com.pawn.realtimesearch.common.error.CustomException
 import com.pawn.realtimesearch.common.error.ErrorCode
 import com.pawn.realtimesearch.infrastructure.TrendRepository
@@ -13,35 +16,34 @@ import org.springframework.transaction.annotation.Transactional
 class TrendService(
     private val trendRepository: TrendRepository
 ) {
-
     @Transactional
-    fun createTrend(dto: TrendDto): TrendDto {
-        val entity = TrendMapper.toEntity(dto)
-        val saved = trendRepository.save(entity)
+    fun createTrend(dto: TrendDto.CreateRequest): TrendDto.Trend {
+        val entity = dto.toEntity()
+        val savedTrend = trendRepository.save(entity)
 
-        return TrendMapper.toDto(saved)
+        return savedTrend.toDto()
     }
 
     @Transactional(readOnly = true)
-    fun getTrend(id: Long): TrendDto {
-        val trend = trendRepository.findById(id)
+    fun getTrend(id: Long): TrendDto.Trend {
+        val foundTrend = trendRepository.findById(id)
             .orElseThrow { CustomException(ErrorCode.NOT_FOUND) }
 
-        return TrendMapper.toDto(trend)
+        return foundTrend.toDto()
     }
 
     @Transactional(readOnly = true)
-    fun getTrends(pageable: Pageable): Page<TrendDto> {
-        return trendRepository.findAll(pageable).map { TrendMapper.toDto(it) }
+    fun getTrends(pageable: Pageable): Page<TrendDto.Trend> {
+        return trendRepository.findAll(pageable).map { it.toDto() }
     }
 
     @Transactional
-    fun updateTrend(dto: TrendDto): TrendDto {
-        val foundTrend = trendRepository.findById(dto.id!!)
+    fun updateTrend(dto: TrendDto.UpdateRequest): TrendDto.Trend {
+        val targetTrend = trendRepository.findById(dto.id)
             .orElseThrow { CustomException(ErrorCode.NOT_FOUND) }
-        foundTrend.update(dto.title, dto.content)
+        targetTrend.update(dto.title, dto.content)
 
-        return TrendMapper.toDto(foundTrend)
+        return targetTrend.toDto()
     }
 
     @Transactional
