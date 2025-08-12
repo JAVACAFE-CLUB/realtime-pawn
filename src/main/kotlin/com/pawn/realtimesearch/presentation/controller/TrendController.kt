@@ -1,24 +1,18 @@
 package com.pawn.realtimesearch.presentation.controller
 
 import com.pawn.realtimesearch.application.service.TrendService
+import com.pawn.realtimesearch.common.dto.PageRequest
+import com.pawn.realtimesearch.common.dto.PageResponse
+import com.pawn.realtimesearch.common.dto.toPageable
+import com.pawn.realtimesearch.common.dto.wrapPageResponse
 import com.pawn.realtimesearch.presentation.dto.TrendRequest
 import com.pawn.realtimesearch.presentation.dto.TrendResponse
 import com.pawn.realtimesearch.presentation.mapper.toCreateResponse
 import com.pawn.realtimesearch.presentation.mapper.toDetailResponse
 import com.pawn.realtimesearch.presentation.mapper.toDto
 import com.pawn.realtimesearch.presentation.mapper.toUpdateResponse
-import org.springframework.data.domain.Pageable
-import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/trends")
@@ -42,8 +36,11 @@ class TrendController(
     }
 
     @GetMapping
-    fun getTrends(@PageableDefault(size = 10) pageable: Pageable) =
-        trendService.getTrends(pageable).map { it.toDetailResponse() }
+    fun getTrends(request: PageRequest): PageResponse<TrendResponse.DetailResponse> {
+        val pageable = request.toPageable()
+
+        return trendService.getTrends(pageable).map { it.toDetailResponse() }.wrapPageResponse()
+    }
 
     @PutMapping("/{id}")
     fun updateTrend(
