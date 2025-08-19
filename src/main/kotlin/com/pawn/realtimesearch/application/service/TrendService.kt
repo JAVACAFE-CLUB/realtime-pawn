@@ -24,7 +24,6 @@ class TrendService(
         return savedTrend.toDto()
     }
 
-    @Transactional(readOnly = true)
     fun getTrend(id: Long): TrendDto.Trend {
         val foundTrend = trendRepository.findById(id)
             .orElseThrow { CustomException(ErrorCode.NOT_FOUND) }
@@ -32,7 +31,6 @@ class TrendService(
         return foundTrend.toDto()
     }
 
-    @Transactional(readOnly = true)
     fun getTrends(pageable: Pageable): Page<TrendDto.Trend> {
         return trendRepository.findAll(pageable).map { it.toDto() }
     }
@@ -51,7 +49,6 @@ class TrendService(
         if (!trendRepository.existsById(id)) {
             throw CustomException(ErrorCode.NOT_FOUND)
         }
-
         trendRepository.deleteById(id)
     }
 }
